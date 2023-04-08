@@ -1,0 +1,2 @@
+ccxt==3.0.50
+python-telegram-bot==13.15
