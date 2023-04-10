@@ -50,8 +50,15 @@ class Exchange:
         return self.api.name
 
     async def watch_order_book(self, symbol):
-        if self.check_exchange_has("watchOrderBook"):
+        try:
             return await self.api.watch_order_book(symbol)
+        except ccxt.DDoSProtection as e:
+            raise Exception(e) from e
+        except (ccxt.NetworkError, ccxt.ExchangeError) as e:
+            raise Exception(
+                f'Could not get orderbook data due to {e.__class__.__name__}. Message: {e}') from e
+        except ccxt.BaseError as e:
+            raise Exception(e) from e
 
     async def watch_ticker(self, symbol):    
         # watch tickers not working fetch ticker for now
