@@ -3,6 +3,8 @@ import logging
 
 import ccxt.pro as ccxt
 
+from ceres.exchange.exchangehelpers import retrier
+
 logger = logging.getLogger(__name__)
 
 
@@ -48,7 +50,8 @@ class Exchange:
 
     def __repr__(self) -> str:
         return self.api.name
-
+    
+    @retrier
     async def watch_order_book(self, symbol):
         try:
             return await self.api.watch_order_book(symbol)
@@ -59,7 +62,8 @@ class Exchange:
                 f'Could not get orderbook data due to {e.__class__.__name__}. Message: {e}') from e
         except ccxt.BaseError as e:
             raise Exception(e) from e
-
+        
+    @retrier
     async def watch_ticker(self, symbol):    
         # watch tickers not working fetch ticker for now
         try:
@@ -75,6 +79,7 @@ class Exchange:
     async def load_markets(self, reload=False):
         return await self.api.load_markets(reload=reload)
 
+    @retrier
     async def watch_balance(self):
         try:
             balance = await self.api.fetch_balance()
