@@ -13,6 +13,17 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+Check the cli options with 
+```bash
+ceres --help
+```
+
+To start the bot run
+Check the cli options with 
+```bash
+ceres trade
+```
+
 ## Configuration
 
 Create a config.json file in the root directory with the following information:
