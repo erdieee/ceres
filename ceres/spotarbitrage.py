@@ -1,14 +1,13 @@
 import logging
 
 
-from ceres.strategy.strategybase import StrategyBase
-
 logger = logging.getLogger(__name__)
 
 
-class SpotArbitrage(StrategyBase):
+class SpotArbitrage:
     def __init__(self, config, exchangeshandler) -> None:
-        super().__init__(config, exchangeshandler)
+        self._config = config
+        self.exchangeshandler = exchangeshandler
         self.symbol = self._config.get("symbol")
         self.order_size = self._config.get("order_size", 0)
         self.bids = {}
@@ -18,7 +17,7 @@ class SpotArbitrage(StrategyBase):
 
     def get_fees(self):
         """
-        if not dry check for potential other fees if high vip ot other
+        if not dry check for potential other fees if high vip or other
         """
         markets = self.exchangeshandler.get_markets()
         for ex, market in markets.items():
