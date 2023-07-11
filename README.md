@@ -1,6 +1,6 @@
 # Ceres Arbitrage Bot
 
-Check orderbooks asynchronely on different exchanges and search for arbitrage opportunities. No trading direction, no gambling, only taking advantage of market inefficiency.
+Check orderbooks asynchronously on different exchanges and search for arbitrage opportunities. No trading direction, no gambling, only taking advantage of market inefficiency.
 
 ## Installation
 

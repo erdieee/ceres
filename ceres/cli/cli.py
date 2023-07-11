@@ -7,10 +7,13 @@ from ceres import __version__
 from ceres.ceresbot import CeresBot
 from ceres.utils import load_config
 
-cli = typer.Typer(help='Ceres bot cli', add_completion=False)
+cli = typer.Typer(help="Ceres bot cli", add_completion=False)
+
 
 @cli.command()
-def trade(verbose: int = typer.Option(logging.INFO, '-v', '--verbose', help='Verbose mode')):
+def trade(
+    verbose: int = typer.Option(logging.INFO, "-v", "--verbose", help="Verbose mode")
+):
     """Start trading"""
     logger = logging.getLogger("ceres")
     LOGFORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -27,15 +30,18 @@ def trade(verbose: int = typer.Option(logging.INFO, '-v', '--verbose', help='Ver
             heart_beat_now = now
         ceresbot.main_loop()
 
+
 @cli.command()
 def show_trades():
     """Show last trades"""
     raise NotImplementedError()
 
-@cli.command(help='Bot version')
+
+@cli.command(help="Bot version")
 def version():
     """Display the current version of the bot"""
-    print(f'Ceres version: {__version__}')
+    print(f"Ceres version: {__version__}")
+
 
 if __name__ == "__main__":
     cli()

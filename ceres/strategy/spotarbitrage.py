@@ -41,8 +41,8 @@ class SpotArbitrage(StrategyBase):
             self.asks[ex] = obs[ex]["asks"][0][0]
 
     def check_profit(self):
-        min_ask_ex = min(self.asks, key=self.asks.get)
-        max_bid_ex = max(self.bids, key=self.bids.get)
+        min_ask_ex = min(self.asks, key=self.asks.get)  # type: ignore
+        max_bid_ex = max(self.bids, key=self.bids.get)  # type: ignore
         min_ask_price = self.asks[min_ask_ex]
         max_bid_price = self.bids[max_bid_ex]
 
@@ -57,29 +57,31 @@ class SpotArbitrage(StrategyBase):
         )
         if profit > 0:
             orders = {
-                'exchange_orders': {
+                "exchange_orders": {
                     min_ask_ex: {
-                        'symbol': self.symbol,
-                        'type': 'limit',
-                        'side': 'buy',
-                        'amount': self.order_size,
-                        'price': min_ask_price
+                        "symbol": self.symbol,
+                        "type": "limit",
+                        "side": "buy",
+                        "amount": self.order_size,
+                        "price": min_ask_price,
                     },
                     max_bid_ex: {
-                        'symbol': self.symbol,
-                        'type': 'limit',
-                        'side': 'sell',
-                        'amount': self.order_size,
-                        'price': max_bid_price
-                    }
+                        "symbol": self.symbol,
+                        "type": "limit",
+                        "side": "sell",
+                        "amount": self.order_size,
+                        "price": max_bid_price,
+                    },
                 },
-                'profit': {
-                    'profit': profit,
-                    'profit_pct': profit_pct,
-                    'fees': min_fee + max_fee
-                }
+                "profit": {
+                    "profit": profit,
+                    "profit_pct": profit_pct,
+                    "fees": min_fee + max_fee,
+                },
             }
-            logger.info(f'Found arbitrage opportunity for {self.symbol} between {min_ask_ex} and {max_bid_ex}')
+            logger.info(
+                f"Found arbitrage opportunity for {self.symbol} between {min_ask_ex} and {max_bid_ex}"
+            )
             return True, orders
-        
+
         return False, {}

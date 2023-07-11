@@ -2,7 +2,14 @@ from datetime import datetime
 import logging
 
 import ccxt.pro as ccxt
-
+from ccxt import (
+    BaseError,
+    DDoSProtection,
+    ExchangeError,
+    InsufficientFunds,
+    InvalidOrder,
+    NetworkError,
+)
 from ceres.exchange.exchangehelpers import retrier
 
 logger = logging.getLogger(__name__)
@@ -11,7 +18,7 @@ logger = logging.getLogger(__name__)
 class Exchange:
     def __init__(self, config, ex_dict={}) -> None:
         self._config = config
-        self.dry = self._config.get('dry', True)
+        self.dry = self._config.get("dry", True)
         self.ex_dict = ex_dict
         self.api = self.init_exchange(self.ex_dict)
 
@@ -25,7 +32,7 @@ class Exchange:
         }
         try:
             api = getattr(ccxt, name.lower())(ex_config)
-        except ccxt.BaseError as e:
+        except BaseError as e:
             raise Exception(f"Initialization of ccxt failed. Reason: {e}") from e
 
         # Sandbox mode need to be set before any call
@@ -50,30 +57,32 @@ class Exchange:
 
     def __repr__(self) -> str:
         return self.api.name
-    
+
     @retrier
     async def watch_order_book(self, symbol):
         try:
             return await self.api.watch_order_book(symbol)
-        except ccxt.DDoSProtection as e:
+        except DDoSProtection as e:
             raise Exception(e) from e
-        except (ccxt.NetworkError, ccxt.ExchangeError) as e:
+        except (NetworkError, ExchangeError) as e:
             raise Exception(
-                f'Could not get orderbook data due to {e.__class__.__name__}. Message: {e}') from e
-        except ccxt.BaseError as e:
+                f"Could not get orderbook data due to {e.__class__.__name__}. Message: {e}"
+            ) from e
+        except BaseError as e:
             raise Exception(e) from e
-        
+
     @retrier
-    async def watch_ticker(self, symbol):    
+    async def watch_ticker(self, symbol):
         # watch tickers not working fetch ticker for now
         try:
             return await self.api.fetch_ticker(symbol)
-        except ccxt.DDoSProtection as e:
+        except DDoSProtection as e:
             raise Exception(e) from e
-        except (ccxt.NetworkError, ccxt.ExchangeError) as e:
+        except (NetworkError, ExchangeError) as e:
             raise Exception(
-                f'Could not load ticker due to {e.__class__.__name__}. Message: {e}') from e
-        except ccxt.BaseError as e:
+                f"Could not load ticker due to {e.__class__.__name__}. Message: {e}"
+            ) from e
+        except BaseError as e:
             raise Exception(e) from e
 
     async def load_markets(self, reload=False):
@@ -89,70 +98,74 @@ class Exchange:
             balance.pop("used", None)
             return balance
 
-        except ccxt.DDoSProtection as e:
+        except DDoSProtection as e:
             raise Exception(e) from e
-        except (ccxt.NetworkError, ccxt.ExchangeError) as e:
-            raise Exception(f'Could not get balance due to {e.__class__.__name__}. Message: {e}') from e
-        except ccxt.BaseError as e:
+        except (NetworkError, ExchangeError) as e:
+            raise Exception(
+                f"Could not get balance due to {e.__class__.__name__}. Message: {e}"
+            ) from e
+        except BaseError as e:
             raise Exception(e) from e
 
-    def create_simulated_order(self, symbol, type, side, amount, price, params): 
+    def create_simulated_order(self, symbol, type, side, amount, price, params):
         # assuming all trades immediately filled
         # still need to consider fees
-        
-        simulated_order = {'id': f'dry_order_{datetime.utcnow().timestamp()}',
-            'datetime': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
-            'timestamp': datetime.utcnow().timestamp(),
-            'symbol': symbol,
-            'type': type,
-            'timeInForce': 'GTC',
-            'postOnly': False,
-            'side': side,
-            'price': price,
-            'amount': amount,
-            'cost': amount * price,
-            'filled': amount,
-            'remaining': 0.0,
-            'status': 'closed',
-            'fee': None,
-            'trades': [],
-            'info': {},
-            'fees': [],
-            'reduceOnly': None}
+
+        simulated_order = {
+            "id": f"dry_order_{datetime.utcnow().timestamp()}",
+            "datetime": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "timestamp": datetime.utcnow().timestamp(),
+            "symbol": symbol,
+            "type": type,
+            "timeInForce": "GTC",
+            "postOnly": False,
+            "side": side,
+            "price": price,
+            "amount": amount,
+            "cost": amount * price,
+            "filled": amount,
+            "remaining": 0.0,
+            "status": "closed",
+            "fee": None,
+            "trades": [],
+            "info": {},
+            "fees": [],
+            "reduceOnly": None,
+        }
 
         return simulated_order
 
     async def create_order(self, *, symbol, type, side, amount, price, params):
         if self.dry:
-            order = self.create_simulated_order(symbol, type, side, amount, price, params)
+            order = self.create_simulated_order(
+                symbol, type, side, amount, price, params
+            )
             return order
 
         try:
             order = await self.api.create_order(
-                symbol,
-                type,
-                side,
-                amount,
-                price,
-                params
+                symbol, type, side, amount, price, params
             )
             return order
-        except ccxt.InsufficientFunds as e:
+        except InsufficientFunds as e:
             logger.warning(
-                f'Insufficient funds to create {type} {side} order on market {symbol}. '
-                f'Tried to {side} amount {amount} at rate {price}.'
-                f'Message: {e}')
-        except ccxt.InvalidOrder as e:
+                f"Insufficient funds to create {type} {side} order on market {symbol}. "
+                f"Tried to {side} amount {amount} at rate {price}."
+                f"Message: {e}"
+            )
+        except InvalidOrder as e:
             logger.warning(
-                f'Could not create {type} {side} order on market {symbol}. '
-                f'Tried to {side} amount {amount} at rate {price}. '
-                f'Message: {e}') 
-        except ccxt.DDoSProtection as e:
+                f"Could not create {type} {side} order on market {symbol}. "
+                f"Tried to {side} amount {amount} at rate {price}. "
+                f"Message: {e}"
+            )
+        except DDoSProtection as e:
             logger.warning(e)
-        except (ccxt.NetworkError, ccxt.ExchangeError) as e:
+        except (NetworkError, ExchangeError) as e:
             logger.warning(
-                f'Could not place {side} order due to {e.__class__.__name__}. Message: {e}')
-        except ccxt.BaseError as e:
+                f"Could not place {side} order due to {e.__class__.__name__}. Message: {e}"
+            )
+        except BaseError as e:
             logger.warning(e)
 
     def check_exchange_has(self, method=str) -> bool:
