@@ -52,6 +52,9 @@ class Balances:
                 self._initial_balance[ex] = bal
         logger.info(f"Starting balance: {self._initial_balance}")
 
+    def __repr__(self) -> str:
+        return f"Wallets: {self._balance}"
+
     def get_free(self, exchange, currency) -> float:
         return self._balance[exchange][currency].free
 
