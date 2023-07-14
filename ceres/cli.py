@@ -2,11 +2,12 @@ import argparse
 import logging
 import time
 import sys
+from pathlib import Path
 from typing import List, Optional
 
 from ceres import __version__
 from ceres.ceresbot import CeresBot
-from ceres.utils import load_config
+from ceres.utils import create_config, load_config
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,20 @@ def trade(args):
 
 
 def new_config(args):
-    raise NotImplementedError(f"Use the config template on github for now.")
+    file_name = None
+    if not args.name:
+        file_name = f"config.json"
+    else:
+        file_name = f"{args.name}.json"
+    working_dir = Path.cwd()
+    config = working_dir / file_name
+    if config.is_file():
+        print(
+            f"Config file {config} already exists. Use --name to specify a new config name."
+        )
+        sys.exit()
+    create_config(config)
+    print(f"Created new config with name {file_name}")
 
 
 def parse_arguments(sysargv):
@@ -41,7 +55,7 @@ def parse_arguments(sysargv):
         parser.add_argument(
             "-V",
             "--version",
-            help="Show bots version",
+            help="Show bots versio and exit.",
             action="version",
             version=f"Version: {__version__}",
         )
@@ -51,7 +65,8 @@ def parse_arguments(sysargv):
         trade_command.set_defaults(func=trade)
 
         config_command = subparsers.add_parser(
-            "create-config", help="Create a new config."
+            "create-config",
+            help="Create a new config. Default name is set to config.json",
         )
         config_command.set_defaults(func=new_config)
         config_command.add_argument(
@@ -66,7 +81,6 @@ def parse_arguments(sysargv):
 
 def cli(sysargv: Optional[List] = None):
     args = parse_arguments(sysargv)
-    # print(args)
     if "func" in args:  # type: ignore
         args.func(args)  # type: ignore
     else:
