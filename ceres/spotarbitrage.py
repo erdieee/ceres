@@ -13,9 +13,9 @@ class SpotArbitrage:
         self.bids = {}
         self.asks = {}
         self.fees = {}
-        self.get_fees()
+        self._get_fees()
 
-    def get_fees(self):
+    def _get_fees(self):
         """
         if not dry check for potential other fees if high vip or other
         """
@@ -55,32 +55,54 @@ class SpotArbitrage:
             f"{self.symbol}: Profit after fees: {profit}, buy exchange {min_ask_ex} at: {min_ask_price}, sell exchange {max_bid_ex} at: {max_bid_price}"
         )
         if profit > 0:
-            orders = {
-                "exchange_orders": {
-                    min_ask_ex: {
-                        "symbol": self.symbol,
-                        "type": "limit",
-                        "side": "buy",
-                        "amount": self.order_size,
-                        "price": min_ask_price,
-                    },
-                    max_bid_ex: {
-                        "symbol": self.symbol,
-                        "type": "limit",
-                        "side": "sell",
-                        "amount": self.order_size,
-                        "price": max_bid_price,
-                    },
-                },
-                "profit": {
-                    "profit": profit,
-                    "profit_pct": profit_pct,
-                    "fees": min_fee + max_fee,
-                },
-            }
+            orders = self._create_orders(
+                min_ask_ex,
+                min_ask_price,
+                max_bid_ex,
+                max_bid_price,
+                profit,
+                profit_pct,
+                min_fee,
+                max_fee,
+            )
             logger.info(
                 f"Found arbitrage opportunity for {self.symbol} between {min_ask_ex} and {max_bid_ex}"
             )
             return True, orders
 
         return False, {}
+
+    def _create_orders(
+        self,
+        min_ask_ex,
+        min_ask_price,
+        max_bid_ex,
+        max_bid_price,
+        profit,
+        profit_pct,
+        min_fee,
+        max_fee,
+    ):
+        return {
+            "exchange_orders": {
+                min_ask_ex: {
+                    "symbol": self.symbol,
+                    "type": "limit",
+                    "side": "buy",
+                    "amount": self.order_size,
+                    "price": min_ask_price,
+                },
+                max_bid_ex: {
+                    "symbol": self.symbol,
+                    "type": "limit",
+                    "side": "sell",
+                    "amount": self.order_size,
+                    "price": max_bid_price,
+                },
+            },
+            "profit": {
+                "profit": profit,
+                "profit_pct": profit_pct,
+                "fees": min_fee + max_fee,
+            },
+        }

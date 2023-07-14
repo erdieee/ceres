@@ -19,6 +19,7 @@ def create_config(file_name: Path) -> None:
         "dry_balance": 1000,
         "amount": 1000,
         "order_size": 1000,
+        "min_profit": 0.01,
         "symbol": "BTC/USDT",
         "exchanges": [
             {"name": "binance", "key": "", "secret": "", "sandbox": False},
