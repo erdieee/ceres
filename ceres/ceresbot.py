@@ -40,7 +40,7 @@ class CeresBot:
             self._create_orders(orders)
 
     def _is_balance_enough(self, orders) -> bool:
-        for ex, order in orders.get("exchanges_order").items():
+        for ex, order in orders.get("exchange_orders").items():
             if not self._check_exchange_balance(ex, order):
                 logger.warning(
                     f"Not placing orders. {ex} has not enough funds to {order.get('side')} {self.symbol}"
@@ -61,11 +61,11 @@ class CeresBot:
         msg = ""
         self.total_profit += float(orders["profit"]["profit"])
         self.total_trades += 1
-        for exchange, order in orders["exchange_orders"].items():
+        for ex, order in orders.get("exchange_orders").items():
             logger.info(
-                f"Placing {order['type']} {order['side']} order for {order['amount']} {self.symbol} @ {order['price']} on {exchange}"
+                f"Placing {order['type']} {order['side']} order for {order['amount']} {self.symbol} @ {order['price']} on {ex}"
             )
-            msg += f"{order['side']} {order['amount']} {self.symbol} @ {order['price']} on {exchange} \n"
+            msg += f"{order['side']} {order['amount']} {self.symbol} @ {order['price']} on {ex} \n"
             # res = self.exchangeHandler.create_order(
             #     exchange, order["type"], order["side"], order["amount"], order["price"]
             # )
