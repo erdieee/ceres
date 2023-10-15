@@ -10,13 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 class CeresBot:
-    def __init__(self, config) -> None:
+    def __init__(self, config, dashboard) -> None:
+        self.dashboard = dashboard
         self._config = config
         if config["dry"]:
             logger.info("Bot is running in dry mode")
+            pass
         self.exchangeshandler = ExchangesHandler(self._config)
         self.wallets = Balances(self._config, self.exchangeshandler)
-        self.strategy = SpotArbitrage(self._config, self.exchangeshandler)
+        self.strategy = SpotArbitrage(self._config, self.exchangeshandler, dashboard)
         self.symbol = self._config.get("symbol")
         base, quote = self.symbol.split("/")
         self.base = base

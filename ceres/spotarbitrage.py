@@ -1,13 +1,19 @@
 import logging
+from turtle import title
 
+from rich.panel import Panel
+from ceres import dashboard
+
+from ceres.utils import generate_table
 
 logger = logging.getLogger(__name__)
 
 
 class SpotArbitrage:
-    def __init__(self, config, exchangeshandler) -> None:
+    def __init__(self, config, exchangeshandler, dashboard) -> None:
         self._config = config
         self.exchangeshandler = exchangeshandler
+        self.dashboard = dashboard
         self.symbol = self._config.get("symbol")
         self.order_size = self._config.get("order_size", 0)
         self.bids = {}
@@ -35,7 +41,14 @@ class SpotArbitrage:
 
     def get_orderbook_data(self):
         obs = self.exchangeshandler.watch_order_books(self.symbol)
-        for ex in self.exchangeshandler.current_exchanges:
+        current_exchanges = self.exchangeshandler.current_exchanges
+        self.dashboard.update(
+            "orderbook",
+            generate_table(obs, current_exchanges),
+            title="Orderbook",
+            border_style="green",
+        )
+        for ex in current_exchanges:
             self.bids[ex] = obs[ex]["bids"][0][0]
             self.asks[ex] = obs[ex]["asks"][0][0]
 
@@ -53,6 +66,12 @@ class SpotArbitrage:
         profit_pct = profit / 100
         logger.debug(
             f"{self.symbol}: Profit after fees: {profit}, buy exchange {min_ask_ex} at: {min_ask_price}, sell exchange {max_bid_ex} at: {max_bid_price}"
+        )
+        self.dashboard.update(
+            "profit",
+            f"{self.symbol} \nProfit after fees: {profit} \nBuy exchange {min_ask_ex} at: {min_ask_price} \nSell exchange {max_bid_ex} at: {max_bid_price}",
+            title="Profit",
+            border_style="red",
         )
         if profit > 0:
             orders = self._create_orders(

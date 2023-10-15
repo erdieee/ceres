@@ -5,8 +5,12 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
+from rich.live import Live
+
 from ceres import __version__
+from ceres import dashboard
 from ceres.ceresbot import CeresBot
+from ceres.dashboard import Dashboard
 from ceres.utils import create_config, load_config
 
 logger = logging.getLogger(__name__)
@@ -14,19 +18,19 @@ logger = logging.getLogger(__name__)
 
 def trade(args):
     """Start trading"""
-    LOGFORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    logging.basicConfig(level=20, format=LOGFORMAT)
+    dashboard = Dashboard()
     config = load_config()
-    logger.info("Starting ceres")
-    ceresbot = CeresBot(config)
+    # logger.info("Starting ceres")
+    ceresbot = CeresBot(config, dashboard)
     heart_beat_now = 0
     heart_beat = 60
-    while True:
-        now = time.time()
-        if (now - heart_beat_now) > heart_beat:
-            logger.info(f"Bot heartbeat. Running version='{__version__}'")
-            heart_beat_now = now
-        ceresbot.main_loop()
+    with Live(dashboard.get_layout, refresh_per_second=0.33, screen=True):
+        while True:
+            now = time.time()
+            if (now - heart_beat_now) > heart_beat:
+                logger.info(f"Bot heartbeat. Running version='{__version__}'")
+                heart_beat_now = now
+            ceresbot.main_loop()
 
 
 def new_config(args):

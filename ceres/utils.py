@@ -2,6 +2,24 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
+from rich.table import Table
+
+
+def generate_table(obs, current_exchanges) -> Table:
+    """Make a new table."""
+    table = Table(expand=True)
+    table.add_column("Exchange")
+    table.add_column("Bids")
+    table.add_column("Asks")
+
+    for ex in current_exchanges:
+        table.add_row(
+            f"{ex}",
+            f'{obs[ex]["bids"][0][0]}',
+            f'{obs[ex]["asks"][0][0]}',
+        )
+    return table
+
 
 def load_config() -> Dict[str, Any]:
     """
