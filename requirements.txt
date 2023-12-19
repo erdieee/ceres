@@ -1,3 +1,3 @@
-ccxt==4.0.112
+ccxt==4.1.91
 python-telegram-bot==13.15
 rich==13.7.0
