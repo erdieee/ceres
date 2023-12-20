@@ -39,26 +39,22 @@ Create a config.json file in the root directory with the following information:
         {
             "name": "binance",
             "key": "",
-            "secret": "",
-            "sandbox": false
+            "secret": ""
         },
         {
             "name": "bybit",
             "key": "",
-            "secret": "",
-            "sandbox": false
+            "secret": ""
         },
         {
             "name": "kucoin",
             "key": "",
-            "secret": "",
-            "sandbox": false
+            "secret": ""
         },
         {
             "name": "okx",
             "key": "",
-            "secret": "",
-            "sandbox": false
+            "secret": ""
         }
     ],
     "telegram": {

@@ -35,18 +35,7 @@ class Exchange:
         except BaseError as e:
             raise Exception(f"Initialization of ccxt failed. Reason: {e}") from e
 
-        # Sandbox mode need to be set before any call
-        self.sandbox_mode(ex_dict, api, name)
         return api
-
-    def sandbox_mode(self, ex_dict, api, name):
-        if ex_dict.get("sandbox"):
-            if api.urls.get("test"):
-                api.set_sandbox_mode(True)
-                logger.info(f"Enabled Sandbox API on {name}")
-            else:
-                logger.warning(f"No Sandbox URL in CCXT for {name}, exiting.")
-                raise Exception(f"Exchange {name} does not provide a sandbox api")
 
     @property
     def name(self):

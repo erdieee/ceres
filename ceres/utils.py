@@ -40,10 +40,10 @@ def create_config(file_name: Path) -> None:
         "min_profit": 0.01,
         "symbol": "BTC/USDT",
         "exchanges": [
-            {"name": "binance", "key": "", "secret": "", "sandbox": False},
-            {"name": "bybit", "key": "", "secret": "", "sandbox": False},
-            {"name": "kucoin", "key": "", "secret": "", "sandbox": False},
-            {"name": "okx", "key": "", "secret": "", "sandbox": False},
+            {"name": "binance", "key": "", "secret": ""},
+            {"name": "bybit", "key": "", "secret": ""},
+            {"name": "kucoin", "key": "", "secret": ""},
+            {"name": "okx", "key": "", "secret": ""},
         ],
         "telegram": {
             "enabled": False,
