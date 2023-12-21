@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools >= 64.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ceres"
+dynamic = ["version", "dependencies"]
+authors = [
+  {name = "erdieee"},
+]
+
+description = "Ceres - Cryptocurrency Arbitrage Bot"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "GPLv3"}
+
+
+[project.scripts]
+ceres = "ceres.main:main"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+
+[tool.setuptools.dynamic]
+version = {attr = "ceres.__version__"}
+dependencies = {file = ["requirements.txt"]}
